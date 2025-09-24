@@ -43,6 +43,9 @@ fn serialize_up_to_four_decimal_places<S>(x: &f64, s: S) -> Result<S::Ok, S::Err
 where
     S: Serializer,
 {
+    // The assignment spec notes that we must accept transaction amoounts with
+    // up to 4 decimal places of precison. This serializer will handle that.
+    //
     // Format the float to a string with 4 decimal places before serializing.
     let formatted = format!("{:.4}", x);
     s.serialize_str(&formatted)
