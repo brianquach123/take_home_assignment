@@ -1,3 +1,5 @@
+use anyhow::bail;
+use anyhow::{Context, Result};
 use csv;
 use rand::Rng;
 use rand::prelude::IndexedRandom;
@@ -5,6 +7,7 @@ use rand::rng;
 use serde::Deserialize;
 use serde::Serialize;
 use serde::Serializer;
+use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::env;
 use std::fmt;
@@ -43,7 +46,7 @@ fn serialize_up_to_four_decimal_places<S>(x: &f64, s: S) -> Result<S::Ok, S::Err
 where
     S: Serializer,
 {
-    // The assignment spec notes that we must accept transaction amoounts with
+    // The assignment spec notes that we must accept transaction amounts with
     // up to 4 decimal places of precison. This serializer will handle that.
     //
     // Format the float to a string with 4 decimal places before serializing.
@@ -86,7 +89,7 @@ impl fmt::Display for TransactionType {
 
 /// Representation of a client's account details in the engine.
 /// The engine uses this for reporting output to stdout.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ClientAccountDetails {
     available_funds: f64,
     held_funds: f64,
@@ -104,24 +107,35 @@ impl fmt::Display for ClientAccountDetails {
     }
 }
 
+/// Representation of the payments engine.
+#[derive(Debug, Default)]
+pub struct PaymentsEngine {
+    /// Maps a client's ID to their `ClientAccountDetails`.
+    client_account_lookup: HashMap<u16, ClientAccountDetails>,
+    /// Maps a client's ID to the set of transactions associated with it.
+    client_transaction_lookup: HashMap<u16, BTreeSet<Transaction>>,
+}
+
+impl PaymentsEngine {
+    pub fn process_transaction(&mut self, tx: Transaction) -> Result<()> {
+        Ok(())
+    }
+}
+
 /// Writes a randomized test CSV given a number of transactions and clients
 /// to initialize the CSV with. Transaction min/max amounts are determined
 /// by MIN_TRANSACTION_AMOUNT and MAX_TRANSACTION_AMOUNT.
-fn generate_transaction_csv(total_transactions: u32, total_clients: u16) {
+fn generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Result<()> {
     let min_transaction_amount: f64 = 0.00;
     let max_transaction_amount: f64 = 100.00;
 
     // Open a file and wrap it in a buffered writer
-    let file = File::create("transactions.csv").unwrap_or_else(|err| {
-        eprintln!("error creating tx file: {}", err);
-        std::process::exit(1);
-    });
+    let file = File::create("transactions.csv").context("error creating transactions.csv")?;
     let buf_writer = BufWriter::new(file);
     let mut wtr = csv::Writer::from_writer(buf_writer);
 
     let mut rng = rng();
     let tx_types: Vec<TransactionType> = TransactionType::iter().collect();
-
     for tx in 0..total_transactions {
         let curr_tx = Transaction {
             tx_type: tx_types.choose(&mut rng).unwrap().clone(),
@@ -129,18 +143,14 @@ fn generate_transaction_csv(total_transactions: u32, total_clients: u16) {
             tx,
             amount: rng.random_range(min_transaction_amount..max_transaction_amount),
         };
-        wtr.serialize(curr_tx).unwrap_or_else(|err| {
-            eprintln!("error writing tx to csv file: {}", err);
-            std::process::exit(1);
-        });
-        wtr.flush().unwrap_or_else(|err| {
-            eprintln!("error flushing csv file: {}", err);
-            std::process::exit(1);
-        });
+        wtr.serialize(curr_tx)
+            .context("Error writing transaction to CSV")?;
+        wtr.flush().context("Error flushing CSV writer")?;
     }
+    Ok(())
 }
 
-fn main() {
+fn main() -> Result<()> {
     /*
         This file detection logic was provided by ChatGPT
         and later modified to fit the requirements of the assignment.
@@ -151,24 +161,23 @@ fn main() {
     */
     let args: Vec<String> = env::args().collect();
     if args.len() != MAX_CLI_ARGS {
-        eprintln!("Usage: {} <transactions_file.csv>", args[0]);
-        std::process::exit(1);
+        bail!("Usage: {} <transactions_file.csv>", args[0]);
     }
 
     // File must exist and be a CSV.
     let filename = &args[1];
     let path = Path::new(filename);
     if !path.exists() {
-        eprintln!("Error: file '{}' does not exist", filename);
-        std::process::exit(1);
+        bail!("File '{}' does not exist", filename);
     }
     if path.extension().and_then(|ext| ext.to_str()) != Some("csv") {
-        eprintln!("Error: argument must be a .csv file");
-        std::process::exit(1);
+        bail!("Argument must be a .csv file");
     }
 
-    // Maintain a lookup of clients to their associated account values for reporting.
-    let mut client_account_lookup: HashMap<u16, ClientAccountDetails> = HashMap::new();
+    let mut payments_engine: PaymentsEngine = PaymentsEngine {
+        client_account_lookup: HashMap::new(),
+        client_transaction_lookup: HashMap::new(),
+    };
 
     // Open and process transactions from the csv file.
     let file = File::open(filename).unwrap_or_else(|err| {
@@ -188,9 +197,13 @@ fn main() {
             std::process::exit(1) // todo maybe just continue here, don't fail immediately on one bad tx.
         });
         println!("{:?}", curr_transaction);
+
+        // Process the current transaction.
+        payments_engine.process_transaction(curr_transaction)?;
     }
 
     println!("CSV file processed.");
+    Ok(())
 }
 
 #[cfg(test)]
