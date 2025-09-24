@@ -1,28 +1,84 @@
 use csv;
+use rand::Rng;
+use rand::prelude::IndexedRandom;
+use rand::rng;
 use serde::Deserialize;
+use serde::Serialize;
+use serde::Serializer;
 use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs::File;
+use std::io::BufWriter;
 use std::path::Path;
+use strum::{EnumIter, IntoEnumIterator};
+
+const MAX_CLI_ARGS: usize = 2;
 
 /// Representation of a transaction.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Transaction {
+    /// Type of Transaction.
     tx_type: TransactionType,
-    client_id: u16, // Assumed type from assignment spec
-    tx_td: u32,     // Assumed type from assignment spec
+    /// Client ID.
+    client: u16,
+    /// Transaction ID. Assumed type from assignment spec.
+    tx: u32, //
+    /// Transaction amount. Assumed type from assignment spec.
+    #[serde(serialize_with = "serialize_up_to_four_decimal_places")]
     amount: f64,
 }
 
+impl fmt::Display for Transaction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}, {}, {}, {:.4}",
+            self.tx_type, self.client, self.tx, self.amount
+        )
+    }
+}
+
+fn serialize_up_to_four_decimal_places<S>(x: &f64, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    // Format the float to a string with 4 decimal places before serializing.
+    let formatted = format!("{:.4}", x);
+    s.serialize_str(&formatted)
+}
+
 /// Representation of a state a transaction may be in.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, EnumIter, Clone)]
+#[serde(rename_all = "lowercase")] // Sample tx files have lowercase tx types
 pub enum TransactionType {
     Deposit,
     Withdrawal,
     Dispute,
     Resolve,
     Chargeback,
+}
+
+impl fmt::Display for TransactionType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            TransactionType::Deposit => {
+                write!(f, "deposit")
+            }
+            TransactionType::Withdrawal => {
+                write!(f, "withdrawal")
+            }
+            TransactionType::Dispute => {
+                write!(f, "dispute")
+            }
+            TransactionType::Resolve => {
+                write!(f, "resolve")
+            }
+            TransactionType::Chargeback => {
+                write!(f, "chargeback")
+            }
+        }
+    }
 }
 
 /// Representation of a client's account details in the engine.
@@ -45,6 +101,42 @@ impl fmt::Display for ClientAccountDetails {
     }
 }
 
+/// Writes a randomized test CSV given a number of transactions and clients
+/// to initialize the CSV with. Transaction min/max amounts are determined
+/// by MIN_TRANSACTION_AMOUNT and MAX_TRANSACTION_AMOUNT.
+fn generate_transaction_csv(total_transactions: u32, total_clients: u16) {
+    let min_transaction_amount: f64 = 0.00;
+    let max_transaction_amount: f64 = 100.00;
+
+    // Open a file and wrap it in a buffered writer
+    let file = File::create("transactions.csv").unwrap_or_else(|err| {
+        eprintln!("error creating tx file: {}", err);
+        std::process::exit(1);
+    });
+    let buf_writer = BufWriter::new(file);
+    let mut wtr = csv::Writer::from_writer(buf_writer);
+
+    let mut rng = rng();
+    let tx_types: Vec<TransactionType> = TransactionType::iter().collect();
+
+    for tx in 0..total_transactions {
+        let curr_tx = Transaction {
+            tx_type: tx_types.choose(&mut rng).unwrap().clone(),
+            client: rng.random_range(0..total_clients),
+            tx,
+            amount: rng.random_range(min_transaction_amount..max_transaction_amount),
+        };
+        wtr.serialize(curr_tx).unwrap_or_else(|err| {
+            eprintln!("error writing tx to csv file: {}", err);
+            std::process::exit(1);
+        });
+        wtr.flush().unwrap_or_else(|err| {
+            eprintln!("error flushing csv file: {}", err);
+            std::process::exit(1);
+        });
+    }
+}
+
 fn main() {
     /*
         This file detection logic was provided by ChatGPT
@@ -55,7 +147,7 @@ fn main() {
         is supposed to be a CSV file?""
     */
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
+    if args.len() != MAX_CLI_ARGS {
         eprintln!("Usage: {} <transactions_file.csv>", args[0]);
         std::process::exit(1);
     }
@@ -96,4 +188,17 @@ fn main() {
     }
 
     println!("CSV file processed.");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_write_test_csv() {
+        let num_txes: u32 = 20;
+        let num_clients: u16 = 6;
+        // Write CSV data into the in-memory buffer
+        generate_transaction_csv(num_txes, num_clients);
+    }
 }
