@@ -17,13 +17,13 @@ mod resolve_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();
@@ -44,7 +44,7 @@ mod resolve_tests {
             tx_type: TransactionType::Resolve,
             client: 1,
             tx: 99,
-            amount: 0.0,
+            amount: Some(0.0),
         };
 
         let result = acct.handle_resolve(resolve);
@@ -62,14 +62,14 @@ mod resolve_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let resolve = Transaction {
             // transaction exists but not disputed
             tx_type: TransactionType::Resolve,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_resolve(resolve).unwrap();
@@ -88,20 +88,20 @@ mod resolve_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let resolve = Transaction {
             // transaction exists but not disputed
             tx_type: TransactionType::Resolve,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();
@@ -119,20 +119,20 @@ mod resolve_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let resolve = Transaction {
             // transaction exists but not disputed
             tx_type: TransactionType::Resolve,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();

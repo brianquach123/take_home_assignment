@@ -17,7 +17,7 @@ mod dispute_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
 
         acct.handle_deposit(deposit).unwrap();
@@ -42,7 +42,7 @@ mod dispute_tests {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 99,
-            amount: 50.0,
+            amount: Some(50.0),
         };
 
         let res = acct.handle_dispute(dispute);
@@ -58,7 +58,7 @@ mod dispute_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         acct.handle_deposit(deposit.clone()).unwrap();
 
@@ -84,7 +84,7 @@ mod dispute_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         acct.handle_deposit(deposit).unwrap();
 

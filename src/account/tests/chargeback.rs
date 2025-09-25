@@ -17,19 +17,19 @@ mod chargeback_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let chargeback = Transaction {
             tx_type: TransactionType::Chargeback,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();
@@ -50,7 +50,7 @@ mod chargeback_tests {
             tx_type: TransactionType::Chargeback,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
 
         let result = acct.handle_chargeback(chargeback);
@@ -70,13 +70,13 @@ mod chargeback_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let chargeback = Transaction {
             tx_type: TransactionType::Chargeback,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
 
         acct.handle_deposit(deposit.clone()).unwrap();
@@ -97,19 +97,19 @@ mod chargeback_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         let chargeback = Transaction {
             tx_type: TransactionType::Chargeback,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();
@@ -138,19 +138,19 @@ mod chargeback_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 100.0,
+            amount: Some(100.0),
         };
         let dispute = Transaction {
             tx_type: TransactionType::Dispute,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         let chargeback = Transaction {
             tx_type: TransactionType::Chargeback,
             client: 1,
             tx: 1,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         acct.handle_deposit(deposit).unwrap();
         acct.handle_dispute(dispute).unwrap();

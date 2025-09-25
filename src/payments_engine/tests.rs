@@ -6,7 +6,7 @@ mod tests {
     use crate::transaction::{Transaction, TransactionType};
 
     /// Helper to create a deposit transaction
-    fn make_deposit_tx(id: u32, client: u16, amount: f64) -> Transaction {
+    fn make_deposit_tx(id: u32, client: u16, amount: Option<f64>) -> Transaction {
         Transaction {
             tx_type: TransactionType::Deposit,
             client,
@@ -16,7 +16,7 @@ mod tests {
     }
 
     /// Helper to create a withdrawal transaction
-    fn make_withdrawal_tx(id: u32, client: u16, amount: f64) -> Transaction {
+    fn make_withdrawal_tx(id: u32, client: u16, amount: Option<f64>) -> Transaction {
         Transaction {
             tx_type: TransactionType::Withdrawal,
             client,
@@ -33,7 +33,7 @@ mod tests {
             client_account_lookup: Default::default(),
         };
 
-        let deposit = make_deposit_tx(1, 1, 100.0);
+        let deposit = make_deposit_tx(1, 1, Some(100.0));
         engine.process_transaction(deposit).unwrap();
 
         let acct = engine.client_account_lookup.get(&1).unwrap();
@@ -49,10 +49,10 @@ mod tests {
             client_account_lookup: Default::default(),
         };
 
-        let deposit = make_deposit_tx(1, 1, 100.0);
+        let deposit = make_deposit_tx(1, 1, Some(100.0));
         engine.process_transaction(deposit).unwrap();
 
-        let withdrawal = make_withdrawal_tx(2, 1, 40.0);
+        let withdrawal = make_withdrawal_tx(2, 1, Some(40.0));
         engine.process_transaction(withdrawal).unwrap();
 
         let acct = engine.client_account_lookup.get(&1).unwrap();
@@ -68,10 +68,10 @@ mod tests {
             client_account_lookup: Default::default(),
         };
 
-        let deposit = make_deposit_tx(1, 1, 50.0);
+        let deposit = make_deposit_tx(1, 1, Some(50.0));
         engine.process_transaction(deposit).unwrap();
 
-        let withdrawal = make_withdrawal_tx(2, 1, 100.0);
+        let withdrawal = make_withdrawal_tx(2, 1, Some(100.0));
         engine.process_transaction(withdrawal).unwrap(); // should be ignored
 
         let acct = engine.client_account_lookup.get(&1).unwrap();
@@ -88,10 +88,10 @@ mod tests {
         };
 
         engine
-            .process_transaction(make_deposit_tx(1, 1, 200.0))
+            .process_transaction(make_deposit_tx(1, 1, Some(200.0)))
             .unwrap();
         engine
-            .process_transaction(make_withdrawal_tx(2, 1, 50.0))
+            .process_transaction(make_withdrawal_tx(2, 1, Some(50.0)))
             .unwrap();
 
         let acct = engine.client_account_lookup.get(&1).unwrap();
@@ -107,7 +107,7 @@ mod tests {
             client_account_lookup: Default::default(),
         };
 
-        let deposit = make_deposit_tx(1, 1, 100.0);
+        let deposit = make_deposit_tx(1, 1, Some(100.0));
         engine.process_transaction(deposit.clone()).unwrap();
         engine.process_transaction(deposit.clone()).unwrap(); // duplicate
 
@@ -125,10 +125,10 @@ mod tests {
         };
 
         engine
-            .process_transaction(make_deposit_tx(1, 1, 100.0))
+            .process_transaction(make_deposit_tx(1, 1, Some(100.0)))
             .unwrap();
         engine
-            .process_transaction(make_deposit_tx(2, 2, 200.0))
+            .process_transaction(make_deposit_tx(2, 2, Some(200.0)))
             .unwrap();
 
         let output = format!("{}", engine);
@@ -146,10 +146,10 @@ mod tests {
         };
 
         engine
-            .process_transaction(make_deposit_tx(1, 1, 100.0))
+            .process_transaction(make_deposit_tx(1, 1, Some(100.0)))
             .unwrap();
         engine
-            .process_transaction(make_deposit_tx(2, 2, 300.0))
+            .process_transaction(make_deposit_tx(2, 2, Some(300.0)))
             .unwrap();
 
         let acct1 = engine.client_account_lookup.get(&1).unwrap();

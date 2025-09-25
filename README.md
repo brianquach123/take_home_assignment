@@ -4,7 +4,7 @@ The payments engine can be run using:
 `cargo run -- <transaction_file>.csv`
 
 If given more time, I would additionally:
-- Build an additional CLI flag to generate a configurable test CSV for easier local testing. I wrote a helper function in lieu of doing this.
+- Build an additional CLI flag to generate a configurable test CSV for easier local testing. I wrote a helper function `_generate_transaction_csv(total_transactions: u32, total_clients: u16)` in lieu of doing this.
 - Use the Newtype pattern on ID-based fields that take an integral type. This is for developer ergonomics so that there is a guarantee that a parameter being
 passed to a function is a guaranteed type, not just a u16 or u32 we'll interpret as a client or transaction ID.
 - Introduce a configurable worker thread field in the `PaymentsEngine`'s struct definition to concurrently divide and portion the CSV for processing. One 
@@ -14,8 +14,9 @@ in the input CSV.
 among values. It's better than having an sequential ID field that can be susceptible to replay attacks. If we're planning to use a database, I would choose to implement 
 some ID generation mechanism to create an ID for client and transaction IDs if this field's planned to be used as a primary key in the database.
 
--Implement a struct called `TransactionDetail` to replace the `(f64, TransactionType)` tuple in the `ClientTransactionArchive` struct for readability.
+- Implement a struct called `TransactionDetail` to replace the `(f64, TransactionType)` tuple in the `ClientTransactionArchive` struct for readability.
 -DRY the non-disputed transactions in the `ClientTransactionArchive`. That is, instead of having this:
+
 ```
 #[derive(Debug, Default)]
 pub struct ClientTransactionArchive {

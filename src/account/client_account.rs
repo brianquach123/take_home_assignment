@@ -66,18 +66,20 @@ impl ClientAccount {
     /// the account's transaction history is updated as well.
     pub fn handle_deposit(&mut self, tx: Transaction) -> Result<(), PaymentsTransactionError> {
         if !self.account_transaction_archive.history.contains(&tx.tx) {
-            self.account_details.available_funds += tx.amount;
-            self.account_details.total_funds += tx.amount;
+            if let Some(amount) = tx.amount {
+                self.account_details.available_funds += amount;
+                self.account_details.total_funds += amount;
 
-            self.account_transaction_archive
-                .details
-                .insert(tx.tx, (tx.amount, tx.tx_type));
-            self.account_transaction_archive.history.insert(tx.tx);
-        } else {
-            warn!(
-                "Duplicate {} transaction ID {} seen for client {}",
-                tx.tx_type, tx.tx, tx.client
-            );
+                self.account_transaction_archive
+                    .details
+                    .insert(tx.tx, (amount, tx.tx_type));
+                self.account_transaction_archive.history.insert(tx.tx);
+            } else {
+                warn!(
+                    "Duplicate {} transaction ID {} seen for client {}",
+                    tx.tx_type, tx.tx, tx.client
+                );
+            }
         }
         Ok(())
     }
@@ -91,18 +93,20 @@ impl ClientAccount {
     /// will fail and the total amount of funds will not change.
     pub fn handle_withdrawal(&mut self, tx: Transaction) -> Result<(), PaymentsTransactionError> {
         if !self.account_transaction_archive.history.contains(&tx.tx) {
-            if self.account_details.available_funds >= tx.amount {
-                self.account_details.available_funds -= tx.amount;
-                self.account_details.total_funds -= tx.amount;
+            if let Some(amount) = tx.amount {
+                if self.account_details.available_funds >= amount {
+                    self.account_details.available_funds -= amount;
+                    self.account_details.total_funds -= amount;
 
-                self.account_transaction_archive
-                    .details
-                    .insert(tx.tx, (tx.amount, tx.tx_type));
-                self.account_transaction_archive.history.insert(tx.tx);
-            } else {
-                return Err(PaymentsTransactionError::NotEnoughAvailableFunds(
-                    tx.client.to_string(),
-                ));
+                    self.account_transaction_archive
+                        .details
+                        .insert(tx.tx, (amount, tx.tx_type));
+                    self.account_transaction_archive.history.insert(tx.tx);
+                } else {
+                    return Err(PaymentsTransactionError::NotEnoughAvailableFunds(
+                        tx.client.to_string(),
+                    ));
+                }
             }
             Ok(())
         } else {
@@ -149,11 +153,12 @@ impl ClientAccount {
 
             Ok(())
         } else {
-            // If the tx specified by the dispute doesn't exist we will assume this
-            // is an error on our partners side.
-            warn!("Duplicate dispsute transaction seen: {}", &tx);
-            Err(PaymentsTransactionError::DuplicateTransactionId(
-                tx.to_string(),
+            // If the tx specified by the dispute doesn't exist this means this is a dispute
+            // for a transaction that never happened. Return an error for this transaction's
+            // processing output.
+            warn!("Duplicate dispute transaction seen: {}", &tx);
+            Err(PaymentsTransactionError::TransactionDetailDoesNotExist(
+                tx.tx.to_string(),
             ))
         }
     }

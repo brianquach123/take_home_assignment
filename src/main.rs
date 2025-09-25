@@ -50,5 +50,6 @@ fn main() -> Result<(), Error> {
         payments_engine.process_transaction(curr_transaction)?;
     }
     println!("{}", payments_engine);
+    println!("Done!");
     Ok(())
 }

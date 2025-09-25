@@ -44,13 +44,21 @@ impl PaymentsEngine {
                 TransactionType::Withdrawal => {
                     // If a client doesn't have enough funds, a withdrawal will fail.
                     // Operationally, isn't of stopping, we'll ack the erroneous withdrawal
-                    // in a log and ingore it with a .ok() and continue processing other transactions.
+                    // in a log and ignore it with a .ok() and continue processing other transactions.
                     selected_account.handle_withdrawal(tx).ok();
-                    return Ok(());
                 }
-                TransactionType::Dispute => selected_account.handle_dispute(tx)?,
-                TransactionType::Resolve => selected_account.handle_resolve(tx)?,
-                TransactionType::Chargeback => selected_account.handle_chargeback(tx)?,
+                TransactionType::Dispute => {
+                    // If a dispute transaction references a transaction that doesn't exist, we return an
+                    // error. But, we don't want to stop processing transactions. Do the same thing
+                    // we do for the withdrawal variant here.
+                    selected_account.handle_dispute(tx).ok();
+                }
+                TransactionType::Resolve => {
+                    selected_account.handle_resolve(tx).ok();
+                }
+                TransactionType::Chargeback => {
+                    selected_account.handle_chargeback(tx).ok();
+                }
             }
         }
         Ok(())

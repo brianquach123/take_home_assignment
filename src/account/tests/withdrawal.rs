@@ -26,7 +26,7 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 1,
-            amount: 40.0,
+            amount: Some(40.0),
         };
         account.handle_withdrawal(tx).unwrap();
 
@@ -49,7 +49,7 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 2,
-            amount: 50.0,
+            amount: Some(50.0),
         };
         let result = account.handle_withdrawal(tx);
 
@@ -73,13 +73,13 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 3,
-            amount: 30.0,
+            amount: Some(30.0),
         };
         let tx2 = Transaction {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 4,
-            amount: 20.0,
+            amount: Some(20.0),
         };
 
         account.handle_withdrawal(tx1).unwrap();
@@ -104,7 +104,7 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 5,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         account.handle_withdrawal(tx).unwrap();
 
@@ -123,7 +123,7 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 6,
-            amount: 5e11,
+            amount: Some(5e11),
         };
         account.handle_withdrawal(tx).unwrap();
 
@@ -142,13 +142,13 @@ mod withdrawal_tests {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 7,
-            amount: 25.0,
+            amount: Some(25.0),
         };
         let tx2 = Transaction {
             tx_type: TransactionType::Withdrawal,
             client: 1,
             tx: 7, // same tx id
-            amount: 20.0,
+            amount: Some(20.0),
         };
 
         account.handle_withdrawal(tx1).unwrap();

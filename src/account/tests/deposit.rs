@@ -21,7 +21,7 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 50.0,
+            amount: Some(50.0),
         };
 
         account.handle_deposit(tx).unwrap();
@@ -44,7 +44,7 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 2,
-            amount: 25.5,
+            amount: Some(25.5),
         };
         account.handle_deposit(tx).unwrap();
 
@@ -61,13 +61,13 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 10.0,
+            amount: Some(10.0),
         };
         let tx2 = Transaction {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 2,
-            amount: 15.0,
+            amount: Some(15.0),
         };
 
         account.handle_deposit(tx1).unwrap();
@@ -88,13 +88,13 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1,
-            amount: 10.0,
+            amount: Some(10.0),
         };
         let tx2 = Transaction {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 1, // same tx ID
-            amount: 20.0,
+            amount: Some(20.0),
         };
 
         account.handle_deposit(tx1).unwrap();
@@ -121,7 +121,7 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 3,
-            amount: 0.0,
+            amount: Some(0.0),
         };
         account.handle_deposit(tx).unwrap();
 
@@ -140,7 +140,7 @@ mod deposit_tests {
             tx_type: TransactionType::Deposit,
             client: 1,
             tx: 4,
-            amount: 1e12,
+            amount: Some(1e12),
         };
 
         account.handle_deposit(tx).unwrap();
