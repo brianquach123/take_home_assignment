@@ -47,7 +47,7 @@ pub struct Transaction {
     /// Transaction ID. Assumed type from assignment spec.
     pub tx: u32,
     /// Transaction amount. Assumed type from assignment spec.
-    #[serde(serialize_with = "serialize_up_to_four_decimal_places")]
+    #[serde(serialize_with = "serialize_up_to_four_decimal_places", default)]
     pub amount: f64,
 }
 

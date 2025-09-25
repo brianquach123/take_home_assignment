@@ -11,8 +11,9 @@ use std::collections::HashMap;
 use std::env;
 
 use crate::payments_engine::engine::PaymentsEngine;
+use crate::utils::MAX_CLI_ARGS;
 use crate::utils::initialize_csv_reader;
-const MAX_CLI_ARGS: usize = 2;
+
 fn main() -> Result<(), Error> {
     /*
         The original file detection logic was provided by ChatGPT

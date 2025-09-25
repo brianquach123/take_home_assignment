@@ -11,6 +11,7 @@ use crate::transaction::{Transaction, TransactionType};
 /// Representation of the payments engine.
 #[derive(Debug)]
 pub struct PaymentsEngine {
+    /// Maps a client ID to its account.
     pub client_account_lookup: HashMap<u16, ClientAccount>,
 }
 

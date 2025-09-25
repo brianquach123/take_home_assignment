@@ -1,10 +1,10 @@
+/// This file defines general helper funtions for the payments engine.
 use crate::{
     errors::PaymentsTransactionError,
     transaction::{Transaction, TransactionType},
 };
 use anyhow::Context;
 use anyhow::Result;
-/// This file defines general helper funtions for the payments engine.
 use csv::Reader;
 use csv::Writer;
 use rand::{Rng, rng, seq::IndexedRandom};
@@ -12,6 +12,8 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 use strum::IntoEnumIterator;
+
+pub const MAX_CLI_ARGS: usize = 2;
 
 /// Reads and returns a csv::Reader<File> over a file if
 /// the file exists and ends with ".csv".
@@ -33,6 +35,10 @@ pub fn initialize_csv_reader(filename: &str) -> Result<Reader<File>, PaymentsTra
 
 /// Writes a randomized test CSV given a number of transactions and clients
 /// to initialize the CSV with. Transaction min/max amounts are hardcoded.
+///
+/// Note: This function is currently unused and prepended with a '_' to
+/// sidestep the clippy lint when building. If more time is allowed, I would opt
+/// to build this function into the engine as an additional CLI flag handler function.
 fn _generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Result<()> {
     let min_transaction_amount: f64 = 0.00;
     let max_transaction_amount: f64 = 100.00;

@@ -1,5 +1,6 @@
-/// Note that these test cases were generated with a ChatGPT prompt:
-/// "Given handler functions with this signature, please list and write unit tests for them"
+/// Tests chargeback transaction behavior for a ClientAccount.
+/// These tests were generated using ChatGPT and then manually
+/// verified.
 #[cfg(test)]
 mod chargeback_tests {
     use crate::{

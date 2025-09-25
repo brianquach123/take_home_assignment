@@ -1,3 +1,5 @@
+/// Tests for the payments engine's transaction processing behavior and Display implementation.
+/// These tests were generated using ChatGPT.
 #[cfg(test)]
 mod tests {
     use crate::PaymentsEngine;
