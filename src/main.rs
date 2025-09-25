@@ -110,21 +110,36 @@ impl fmt::Display for ClientAccountDetails {
 /// Representation of the payments engine.
 #[derive(Debug, Default)]
 pub struct PaymentsEngine {
-    /// Maps a client's ID to their `ClientAccountDetails`.
-    client_account_lookup: HashMap<u16, ClientAccountDetails>,
-    /// Maps a client's ID to the set of transactions associated with it.
-    client_transaction_lookup: HashMap<u16, BTreeSet<Transaction>>,
+    /// Maps a client's ID to their `ClientAccount`.
+    client_account_lookup: HashMap<u16, ClientAccount>,
+}
+
+/// Representation of a client's account in the payments engine.
+/// A client account is defined by its funds' details and lock status,
+/// in addition to the set of transactions associated with this client
+/// account that the payments engine has previously processed.
+#[derive(Debug, Default)]
+pub struct ClientAccount {
+    account_details: ClientAccountDetails,
+    account_transaction_lookup: BTreeSet<Transaction>,
 }
 
 impl PaymentsEngine {
+    /// Processes a `Transaction`` based on its `TransactionType``.
     pub fn process_transaction(&mut self, tx: Transaction) -> Result<()> {
+        match tx.tx_type {
+            TransactionType::Deposit => {}
+            TransactionType::Withdrawal => {}
+            TransactionType::Dispute => {}
+            TransactionType::Resolve => {}
+            TransactionType::Chargeback => {}
+        }
         Ok(())
     }
 }
 
 /// Writes a randomized test CSV given a number of transactions and clients
-/// to initialize the CSV with. Transaction min/max amounts are determined
-/// by MIN_TRANSACTION_AMOUNT and MAX_TRANSACTION_AMOUNT.
+/// to initialize the CSV with. Transaction min/max amounts are hardcoded.
 fn generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Result<()> {
     let min_transaction_amount: f64 = 0.00;
     let max_transaction_amount: f64 = 100.00;
@@ -176,7 +191,6 @@ fn main() -> Result<()> {
 
     let mut payments_engine: PaymentsEngine = PaymentsEngine {
         client_account_lookup: HashMap::new(),
-        client_transaction_lookup: HashMap::new(),
     };
 
     // Open and process transactions from the csv file.
