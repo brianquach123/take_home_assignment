@@ -2,15 +2,15 @@ mod account;
 mod transaction;
 use transaction::*;
 mod payments_engine;
+use anyhow::Error;
 use anyhow::Result;
-use anyhow::{Error, bail};
 use csv::{self, Reader};
+use log::debug;
 use payments_engine::*;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::path::Path;
-
 const MAX_CLI_ARGS: usize = 2;
 
 fn main() -> Result<(), Error> {
@@ -24,17 +24,17 @@ fn main() -> Result<(), Error> {
     */
     let args: Vec<String> = env::args().collect();
     if args.len() != MAX_CLI_ARGS {
-        bail!("Usage: {} <transactions_file.csv>", args[0]);
+        panic!("Usage: {} <transactions_file.csv>", args[0]);
     }
 
     // File must exist and be a CSV.
     let filename = &args[1];
     let path = Path::new(filename);
     if !path.exists() {
-        bail!("File '{}' does not exist", filename);
+        panic!("File '{}' does not exist", filename);
     }
     if path.extension().and_then(|ext| ext.to_str()) != Some("csv") {
-        bail!("Argument must be a .csv file");
+        panic!("Argument must be a .csv file");
     }
 
     let mut payments_engine: PaymentsEngine = PaymentsEngine {
@@ -52,12 +52,12 @@ fn main() -> Result<(), Error> {
         - Whitespaces and decimal precisions (up to four places past the decimal) must be accepted.
         */
         let curr_transaction: Transaction = res?;
-        println!("{:?}", curr_transaction);
+        debug!("{:?}", curr_transaction);
 
         // Process the current transaction.
         let _ = payments_engine.process_transaction(curr_transaction);
     }
-    print!("\n\n{}\n\n", payments_engine);
+    println!("{}", payments_engine);
     Ok(())
 }
 
