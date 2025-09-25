@@ -5,7 +5,7 @@ The payments engine can be run using:
 
 If given more time, I would additionally:
 - Build an additional CLI flag to generate a configurable test CSV for easier local testing. I wrote a helper function `_generate_transaction_csv(total_transactions: u32, total_clients: u16)` in lieu of doing this.
-- Use the Newtype pattern on ID-based fields that take an integral type. This is for developer ergonomics so that there is a guarantee that a parameter being
+- Use the Newtype pattern (https://doc.rust-lang.org/rust-by-example/generics/new_types.html) on ID-based fields that take an integral type. This is for developer ergonomics so that there is a guarantee that a parameter being
 passed to a function is a guaranteed type, not just a u16 or u32 we'll interpret as a client or transaction ID.
 - Introduce a configurable worker thread field in the `PaymentsEngine`'s struct definition to concurrently divide and portion the CSV for processing. One 
 approach involves setting this field to X. Then when the engine begins processing payment transactions, spawn X threads responsible for every first, second,..X-th row
