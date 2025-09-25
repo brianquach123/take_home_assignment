@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize, Serializer};
 use std::fmt;
 use strum::EnumIter;
 
-/// Representation of all transaction variants.
+/// Representation of all transaction variants supported.
 #[derive(Debug, Deserialize, Serialize, EnumIter, Clone, Copy)]
 #[serde(rename_all = "lowercase")] // Sample tx files have lowercase tx types
 pub enum TransactionType {

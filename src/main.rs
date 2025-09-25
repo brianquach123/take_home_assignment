@@ -1,6 +1,7 @@
 mod account;
 mod transaction;
 use transaction::*;
+mod errors;
 mod payments_engine;
 use anyhow::Error;
 use anyhow::Result;

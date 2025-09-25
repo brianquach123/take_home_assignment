@@ -1,23 +1,16 @@
+/// This file defines the payments engine interface and behavior
+/// for processing a deserialized `Transaction`.
 use anyhow::Result;
 use std::collections::HashMap;
 use std::fmt;
-use thiserror::Error;
 
 use crate::account::ClientAccount;
+use crate::errors::PaymentsTransactionError;
 use crate::transaction::{Transaction, TransactionType};
-
-#[derive(Debug, Error)]
-pub enum PaymentsTransactionError {
-    #[error("Not enough available funds for client {0}")]
-    NotEnoughAvailableFunds(String),
-    #[error("Transaction details not found for transaction {0}")]
-    TransactionDetailDoesNotExist(String),
-}
 
 /// Representation of the payments engine.
 #[derive(Debug, Default)]
 pub struct PaymentsEngine {
-    /// Maps a client's ID to their `ClientAccount`.
     pub client_account_lookup: HashMap<u16, ClientAccount>,
 }
 
