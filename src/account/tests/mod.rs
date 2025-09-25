@@ -1,10 +1,10 @@
 #[cfg(test)]
-mod chargeback_tests;
+mod chargeback;
 #[cfg(test)]
-mod deposit_tests;
+mod deposit;
 #[cfg(test)]
-mod dispute_tests;
+mod dispute;
 #[cfg(test)]
-mod resolve_tests;
+mod resolve;
 #[cfg(test)]
-mod withdrawal_tests;
+mod withdrawal;

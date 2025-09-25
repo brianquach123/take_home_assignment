@@ -7,10 +7,10 @@ mod utils;
 use anyhow::Error;
 use anyhow::Result;
 use log::debug;
-use payments_engine::*;
 use std::collections::HashMap;
 use std::env;
 
+use crate::payments_engine::engine::PaymentsEngine;
 use crate::utils::initialize_csv_reader;
 const MAX_CLI_ARGS: usize = 2;
 fn main() -> Result<(), Error> {
