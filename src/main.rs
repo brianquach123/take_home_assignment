@@ -118,12 +118,6 @@ pub struct ClientTransactionArchive {
     /// The set of disputed transactions for this account.
     disputes: BTreeSet<u32>,
 }
-/// Representation of the payments engine.
-#[derive(Debug, Default)]
-pub struct PaymentsEngine {
-    /// Maps a client's ID to their `ClientAccount`.
-    client_account_lookup: HashMap<u16, ClientAccount>,
-}
 
 /// Representation of a client's account in the payments engine.
 /// A client account is defined by its funds' details and lock status,
@@ -143,6 +137,22 @@ pub enum PaymentsTransactionError {
     NotEnoughAvailableFunds(String),
     #[error("Transaction details not found for transaction {0}")]
     TransactionDetailDoesNotExist(String),
+}
+
+/// Representation of the payments engine.
+#[derive(Debug, Default)]
+pub struct PaymentsEngine {
+    /// Maps a client's ID to their `ClientAccount`.
+    client_account_lookup: HashMap<u16, ClientAccount>,
+}
+
+impl fmt::Display for PaymentsEngine {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (client_id, client_account) in &self.client_account_lookup {
+            write!(f, "{}, {}", client_id, client_account.account_details)?;
+        }
+        Ok(())
+    }
 }
 
 impl PaymentsEngine {
@@ -307,6 +317,9 @@ impl PaymentsEngine {
                             .disputes
                             .contains(disputed_tx)
                     {
+                        // If a chargeback occurs the client's account should be immediately frozen.
+                        selected_account.account_details.is_account_locked = true;
+
                         // Get the transaction details associated with the dispute concluding with a chargeback.
                         let tx_archive = &selected_account.account_transaction_archive;
                         let disputed_tx_details = tx_archive.details.get(disputed_tx).ok_or(
