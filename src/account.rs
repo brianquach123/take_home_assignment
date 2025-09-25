@@ -1,3 +1,5 @@
+/// This file defines structs and methods associated with a client account in
+/// the payments engine.
 use log::warn;
 use std::{
     collections::{BTreeSet, HashMap},
@@ -188,6 +190,8 @@ impl ClientAccount {
     }
 }
 
+/// Representation of a client account's history of processed transactions
+/// with their amount totals and type.
 #[derive(Debug, Default)]
 pub struct ClientTransactionArchive {
     /// The set of transaction IDs associated with this account.
