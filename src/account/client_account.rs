@@ -55,19 +55,30 @@ pub struct ClientAccount {
     pub account_transaction_archive: ClientTransactionArchive,
 }
 
+/// Methods for a `ClientAccount`. Note that process_transaction() for the PaymentsEngine
+/// includes a check if a given transaction ID has been processed before to serve as a
+/// guard against repeat attacks. Each of the handler functions here also do this to maintain
+/// modularity for testing.
 impl ClientAccount {
     /// A deposit is a credit to the client's asset account, meaning it
     /// should increase the available and total funds of the client account.
     /// Additionally, since total funds are mutated on a successful deposit,
     /// the account's transaction history is updated as well.
     pub fn handle_deposit(&mut self, tx: Transaction) -> Result<(), PaymentsTransactionError> {
-        self.account_details.available_funds += tx.amount;
-        self.account_details.total_funds += tx.amount;
+        if !self.account_transaction_archive.history.contains(&tx.tx) {
+            self.account_details.available_funds += tx.amount;
+            self.account_details.total_funds += tx.amount;
 
-        self.account_transaction_archive
-            .details
-            .insert(tx.tx, (tx.amount, tx.tx_type));
-        self.account_transaction_archive.history.insert(tx.tx);
+            self.account_transaction_archive
+                .details
+                .insert(tx.tx, (tx.amount, tx.tx_type));
+            self.account_transaction_archive.history.insert(tx.tx);
+        } else {
+            warn!(
+                "Duplicate {} transaction ID {} seen for client {}",
+                tx.tx_type, tx.tx, tx.client
+            );
+        }
         Ok(())
     }
 
@@ -79,20 +90,27 @@ impl ClientAccount {
     /// If a client does not have sufficient available funds, the withdrawal
     /// will fail and the total amount of funds will not change.
     pub fn handle_withdrawal(&mut self, tx: Transaction) -> Result<(), PaymentsTransactionError> {
-        if self.account_details.available_funds >= tx.amount {
-            self.account_details.available_funds -= tx.amount;
-            self.account_details.total_funds -= tx.amount;
+        if !self.account_transaction_archive.history.contains(&tx.tx) {
+            if self.account_details.available_funds >= tx.amount {
+                self.account_details.available_funds -= tx.amount;
+                self.account_details.total_funds -= tx.amount;
 
-            self.account_transaction_archive
-                .details
-                .insert(tx.tx, (tx.amount, tx.tx_type));
-            self.account_transaction_archive.history.insert(tx.tx);
+                self.account_transaction_archive
+                    .details
+                    .insert(tx.tx, (tx.amount, tx.tx_type));
+                self.account_transaction_archive.history.insert(tx.tx);
+            } else {
+                return Err(PaymentsTransactionError::NotEnoughAvailableFunds(
+                    tx.client.to_string(),
+                ));
+            }
+            Ok(())
         } else {
-            return Err(PaymentsTransactionError::NotEnoughAvailableFunds(
-                tx.client.to_string(),
-            ));
+            warn!("Duplicate withdrawal transaction seen: {}", &tx);
+            Err(PaymentsTransactionError::DuplicateTransactionId(
+                tx.to_string(),
+            ))
         }
-        Ok(())
     }
     /// A dispute references the transaction that is disputed by ID.
     /// The client's available funds should decrease by the amount disputed.
@@ -128,15 +146,16 @@ impl ClientAccount {
             self.account_transaction_archive
                 .disputes
                 .insert(*disputed_tx);
+
+            Ok(())
         } else {
             // If the tx specified by the dispute doesn't exist we will assume this
             // is an error on our partners side.
-            warn!(
-                "Dispute referenced transaction ID {} does not exist for client {}, ignoring.",
-                &tx.tx, &tx.client
-            );
+            warn!("Duplicate dispsute transaction seen: {}", &tx);
+            Err(PaymentsTransactionError::DuplicateTransactionId(
+                tx.to_string(),
+            ))
         }
-        Ok(())
     }
 
     /// Resolves refer to a transaction that was under dispute by ID.
@@ -220,5 +239,25 @@ impl ClientAccount {
             );
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod account_tests {
+    use crate::account::client_account::ClientAccountDetails;
+
+    /// The `Display` implementation for `ClientAccountDetails` shows balances to four decimal places.
+    /// Includes the lock status in the output.
+    /// Verifies that formatting is consistent and human-readable.
+    #[test]
+    fn test_display_client_account_details() {
+        let mut details = ClientAccountDetails::default();
+        details.available_funds = 10.123456;
+        details.held_funds = 5.5;
+        details.total_funds = 15.623456;
+        details.is_account_locked = true;
+
+        let display = details.to_string();
+        assert_eq!(display, "10.1235, 5.5000, 15.6235, true");
     }
 }

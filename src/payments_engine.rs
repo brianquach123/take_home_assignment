@@ -4,7 +4,7 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::fmt;
 
-use crate::account::ClientAccount;
+use crate::account::client_account::ClientAccount;
 use crate::errors::PaymentsTransactionError;
 use crate::transaction::{Transaction, TransactionType};
 

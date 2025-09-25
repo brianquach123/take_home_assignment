@@ -46,7 +46,7 @@ fn _generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Res
     let tx_types: Vec<TransactionType> = TransactionType::iter().collect();
     for tx in 0..total_transactions {
         let curr_tx = Transaction {
-            tx_type: tx_types.choose(&mut rng).unwrap().clone(),
+            tx_type: *tx_types.choose(&mut rng).unwrap(),
             client: rng.random_range(0..total_clients),
             tx,
             amount: rng.random_range(min_transaction_amount..max_transaction_amount),

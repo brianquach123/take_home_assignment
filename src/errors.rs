@@ -15,4 +15,6 @@ pub enum PaymentsTransactionError {
     InvalidTransactionFileExtension(String),
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
+    #[error("Duplicate withdrawal transaction seen: {0}")]
+    DuplicateTransactionId(String),
 }

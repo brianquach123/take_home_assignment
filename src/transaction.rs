@@ -5,7 +5,7 @@ use std::fmt;
 use strum::EnumIter;
 
 /// Representation of all transaction variants supported.
-#[derive(Debug, Deserialize, Serialize, EnumIter, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, EnumIter, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")] // Sample tx files have lowercase tx types
 pub enum TransactionType {
     Deposit,
