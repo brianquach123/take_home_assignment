@@ -2,19 +2,14 @@ mod account;
 mod transaction;
 use transaction::*;
 mod payments_engine;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use anyhow::{Error, bail};
-use csv::{self, Reader, Writer};
+use csv::{self, Reader};
 use payments_engine::*;
-use rand::Rng;
-use rand::prelude::IndexedRandom;
-use rand::rng;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
-use std::io::BufWriter;
 use std::path::Path;
-use strum::IntoEnumIterator;
 
 const MAX_CLI_ARGS: usize = 2;
 
@@ -56,10 +51,7 @@ fn main() -> Result<(), Error> {
         - Can assume transactions occur chronologically in the file.
         - Whitespaces and decimal precisions (up to four places past the decimal) must be accepted.
         */
-        let curr_transaction: Transaction = res.unwrap_or_else(|err| {
-            eprintln!("Error reading transaction: {}", err);
-            std::process::exit(1) // todo maybe just continue here, don't fail immediately on one bad tx.
-        });
+        let curr_transaction: Transaction = res?;
         println!("{:?}", curr_transaction);
 
         // Process the current transaction.
@@ -71,6 +63,13 @@ fn main() -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::io::BufWriter;
+
+    use anyhow::Context;
+    use csv::Writer;
+    use rand::{Rng, rng, seq::IndexedRandom};
+    use strum::IntoEnumIterator;
+
     use super::*;
 
     /// Writes a randomized test CSV given a number of transactions and clients
@@ -105,6 +104,6 @@ mod tests {
         let num_txes: u32 = 20;
         let num_clients: u16 = 6;
         // Write CSV data into the in-memory buffer
-        generate_transaction_csv(num_txes, num_clients);
+        let _ = generate_transaction_csv(num_txes, num_clients);
     }
 }
