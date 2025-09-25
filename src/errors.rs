@@ -9,4 +9,10 @@ pub enum PaymentsTransactionError {
     NotEnoughAvailableFunds(String),
     #[error("Transaction details not found for transaction {0}")]
     TransactionDetailDoesNotExist(String),
+    #[error("Transaction CSV file {0} does not exist {0}")]
+    TransactionCsvDoesNotExist(String),
+    #[error("Argument must be a CSV file {0}")]
+    InvalidTransactionFileExtension(String),
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
 }

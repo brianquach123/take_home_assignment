@@ -9,7 +9,7 @@ use crate::errors::PaymentsTransactionError;
 use crate::transaction::{Transaction, TransactionType};
 
 /// Representation of the payments engine.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct PaymentsEngine {
     pub client_account_lookup: HashMap<u16, ClientAccount>,
 }
@@ -40,7 +40,13 @@ impl PaymentsEngine {
         if transaction_id_not_seen_before {
             match tx.tx_type {
                 TransactionType::Deposit => selected_account.handle_deposit(tx)?,
-                TransactionType::Withdrawal => selected_account.handle_withdrawal(tx)?,
+                TransactionType::Withdrawal => {
+                    // If a client doesn't have enough funds, a withdrawal will fail.
+                    // Operationally, isn't of stopping, we'll ack the erroneous withdrawal
+                    // in a log and continue processing other transactions.
+                    let _ = selected_account.handle_withdrawal(tx);
+                    return Ok(());
+                }
                 TransactionType::Dispute => selected_account.handle_dispute(tx)?,
                 TransactionType::Resolve => selected_account.handle_resolve(tx)?,
                 TransactionType::Chargeback => selected_account.handle_chargeback(tx)?,
