@@ -12,3 +12,4 @@ strum = { version = "0.27", features = ["derive"] } # String/enum processing erg
 rand = "0.9.2" # Testing
 env_logger = "0.11.8" # Logging
 log = "0.4.28" # Logging
+tempfile = "3.23.0" # Testing

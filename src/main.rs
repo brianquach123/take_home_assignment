@@ -46,9 +46,7 @@ fn main() -> Result<(), Error> {
         */
         let curr_transaction: Transaction = res?;
         debug!("{:?}", curr_transaction);
-
-        // Process the current transaction.
-        let _processed_tx = payments_engine.process_transaction(curr_transaction)?;
+        payments_engine.process_transaction(curr_transaction)?;
     }
     println!("{}", payments_engine);
     Ok(())

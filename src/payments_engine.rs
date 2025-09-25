@@ -43,8 +43,8 @@ impl PaymentsEngine {
                 TransactionType::Withdrawal => {
                     // If a client doesn't have enough funds, a withdrawal will fail.
                     // Operationally, isn't of stopping, we'll ack the erroneous withdrawal
-                    // in a log and continue processing other transactions.
-                    let _ = selected_account.handle_withdrawal(tx);
+                    // in a log and ingore it with a .ok() and continue processing other transactions.
+                    selected_account.handle_withdrawal(tx).ok();
                     return Ok(());
                 }
                 TransactionType::Dispute => selected_account.handle_dispute(tx)?,
