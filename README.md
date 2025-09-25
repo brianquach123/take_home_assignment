@@ -15,31 +15,6 @@ among values. It's better than having an sequential ID field that can be suscept
 some ID generation mechanism to create an ID for client and transaction IDs if this field's planned to be used as a primary key in the database.
 
 - Implement a struct called `TransactionDetail` to replace the `(f64, TransactionType)` tuple in the `ClientTransactionArchive` struct for readability.
--DRY the non-disputed transactions in the `ClientTransactionArchive`. That is, instead of having this:
-
-```
-#[derive(Debug, Default)]
-pub struct ClientTransactionArchive {
-    /// The set of transaction IDs associated with this account.
-    pub history: BTreeSet<u32>,
-    /// Map of the set of transaction IDs to (amount, type of transaction)
-    /// for this account.
-    pub details: HashMap<u32, (f64, TransactionType)>,
-    /// The set of disputed transactions for this account.
-    pub disputes: BTreeSet<u32>,
-}
-```
-I would instead update this struct to this:
-```
-#[derive(Debug, Default)]
-pub struct ClientTransactionArchive {
-    /// Map of the set of transaction IDs to (amount, type of transaction)
-    /// for this account.
-    pub tx_details: HashMap<u32, (f64, TransactionType)>,
-    /// The set of disputed transactions for this account.
-    pub disputes: BTreeSet<u32>,
-}
-```
-This reduces the number of fields to maintain, and conceptually represents 
-the account's past transactions. I didn't notice this until later during the
+- Remove the `history: BTreeSet<u32>` field from `ClientTransactionArchive` to instead have `tx_details: HashMap<u32, (f64, TransactionType)>` represent it.
+This reduces the number of fields to maintain, while still conceptually representing the account's transaction history. I didn't notice this until later during the
 development process.
