@@ -1,3 +1,5 @@
+/// This file defines the `Transaction` struct and associated methods and utilities
+/// for it in the payments engine.
 use serde::{Deserialize, Serialize, Serializer};
 use std::fmt;
 use strum::EnumIter;
@@ -49,6 +51,7 @@ pub struct Transaction {
     pub amount: f64,
 }
 
+/// Output formatting for a transaction, based on the spec doc.
 impl fmt::Display for Transaction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -59,14 +62,14 @@ impl fmt::Display for Transaction {
     }
 }
 
+/// Custom serializer function for floats. The spec doc states that
+/// decimal precisions are assumed to be up to four places and should
+/// output values with the same level of precison. This function handles
+/// that decismal precision for output.
 fn serialize_up_to_four_decimal_places<S>(x: &f64, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    // The assignment spec notes that we must accept transaction amounts with
-    // up to 4 decimal places of precison. This serializer will handle that.
-    //
-    // Format the float to a string with 4 decimal places before serializing.
     let formatted = format!("{:.4}", x);
     s.serialize_str(&formatted)
 }
