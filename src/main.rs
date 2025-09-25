@@ -1,5 +1,5 @@
-use anyhow::bail;
 use anyhow::{Context, Result};
+use anyhow::{Error, bail};
 use csv::{self, Reader, Writer};
 use rand::Rng;
 use rand::prelude::IndexedRandom;
@@ -148,8 +148,9 @@ pub struct PaymentsEngine {
 
 impl fmt::Display for PaymentsEngine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "client, available, held, total, locked\n")?;
         for (client_id, client_account) in &self.client_account_lookup {
-            write!(f, "{}, {}", client_id, client_account.account_details)?;
+            write!(f, "{}, {}\n", client_id, client_account.account_details)?;
         }
         Ok(())
     }
@@ -384,7 +385,7 @@ fn generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Resu
     Ok(())
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Error> {
     /*
         This file detection logic was provided by ChatGPT
         and later modified to fit the requirements of the assignment.
@@ -413,10 +414,7 @@ fn main() -> Result<()> {
     };
 
     // Open and process transactions from the csv file.
-    let file = File::open(filename).unwrap_or_else(|err| {
-        eprintln!("error opening file: {}", err);
-        std::process::exit(1);
-    });
+    let file = File::open(filename)?;
     let mut reader = Reader::from_reader(file);
     for res in reader.deserialize() {
         /*
@@ -432,10 +430,9 @@ fn main() -> Result<()> {
         println!("{:?}", curr_transaction);
 
         // Process the current transaction.
-        payments_engine.process_transaction(curr_transaction)?;
+        let _ = payments_engine.process_transaction(curr_transaction);
     }
-
-    println!("CSV file processed.");
+    print!("\n\n{}\n\n", payments_engine);
     Ok(())
 }
 
