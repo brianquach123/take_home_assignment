@@ -13,7 +13,6 @@ in the input CSV.
 - Use secure values instead of a u16 and u32 for ID types. If we're not using a database, I would choose to replace each of these with a v4 UUID to ensure uniqueness
 among values. It's better than having an sequential ID field that can be susceptible to replay attacks. If we're planning to use a database, I would choose to implement 
 some ID generation mechanism to create an ID for client and transaction IDs if this field's planned to be used as a primary key in the database.
-
 - Implement a struct called `TransactionDetail` to replace the `(f64, TransactionType)` tuple in the `ClientTransactionArchive` struct for readability.
 - Remove the `history: BTreeSet<u32>` field from `ClientTransactionArchive` to instead have `tx_details: HashMap<u32, (f64, TransactionType)>` represent it.
 This reduces the number of fields to maintain, while still conceptually representing the account's transaction history. I didn't notice this until later during the
