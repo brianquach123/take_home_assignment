@@ -39,7 +39,7 @@ pub fn initialize_csv_reader(filename: &str) -> Result<Reader<File>, PaymentsTra
 /// Note: This function is currently unused and prepended with a '_' to
 /// sidestep the clippy lint when building. If more time is allowed, I would opt
 /// to build this function into the engine as an additional CLI flag handler function.
-fn _generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Result<()> {
+pub fn _generate_transaction_csv(total_transactions: u32, total_clients: u16) -> Result<()> {
     let min_transaction_amount: f64 = 0.00;
     let max_transaction_amount: f64 = 100.00;
 

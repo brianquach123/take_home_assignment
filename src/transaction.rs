@@ -41,6 +41,7 @@ impl fmt::Display for TransactionType {
 #[derive(Debug, Deserialize, Serialize, Copy, Clone)]
 pub struct Transaction {
     /// Type of Transaction.
+    #[serde(rename = "type")]
     pub tx_type: TransactionType,
     /// Client ID.
     pub client: u16,
