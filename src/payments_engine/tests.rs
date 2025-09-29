@@ -132,9 +132,9 @@ mod tests {
             .unwrap();
 
         let output = format!("{}", engine);
-        assert!(output.contains("client, available, held, total, locked"));
-        assert!(output.contains("1, 100.0000, 0.0000, 100.0000, false"));
-        assert!(output.contains("2, 200.0000, 0.0000, 200.0000, false"));
+        assert!(output.contains("client,available,held,total,locked"));
+        assert!(output.contains("1,100.0000,0.0000,100.0000,false"));
+        assert!(output.contains("2,200.0000,0.0000,200.0000,false"));
     }
 
     /// Test that multiple clients can be handled by the engine

@@ -17,9 +17,9 @@ pub struct PaymentsEngine {
 
 impl fmt::Display for PaymentsEngine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "client, available, held, total, locked")?;
+        writeln!(f, "client,available,held,total,locked")?;
         for (client_id, client_account) in &self.client_account_lookup {
-            writeln!(f, "{}, {}", client_id, client_account.account_details)?;
+            writeln!(f, "{},{}", client_id, client_account.account_details)?;
         }
         Ok(())
     }

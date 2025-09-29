@@ -36,7 +36,7 @@ impl fmt::Display for ClientAccountDetails {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:.4}, {:.4}, {:.4}, {}",
+            "{:.4},{:.4},{:.4},{}",
             self.available_funds, self.held_funds, self.total_funds, self.is_account_locked
         )
     }
@@ -263,6 +263,6 @@ mod account_tests {
         details.is_account_locked = true;
 
         let display = details.to_string();
-        assert_eq!(display, "10.1235, 5.5000, 15.6235, true");
+        assert_eq!(display, "10.1235,5.5000,15.6235,true");
     }
 }
